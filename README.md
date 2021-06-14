@@ -84,6 +84,8 @@ Go to http://localhost:10101/aquarium to access Aquarium.
 
 Landing page: 
 
+![/assets/landing_page](/assets/landing_page)
+
 
 
 
