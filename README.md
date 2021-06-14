@@ -81,14 +81,27 @@ Go to http://localhost:10101/aquarium to access Aquarium.
 
 # Views 
 
-Landing page: 
+Landing Page: 
 
-![assets-landing_page](assets/landing_page.png)
+![assets-landing_page](assets/login.png)
 
 
-Create account: 
+Create Account: 
 
 ![assets-create-account](assets/create_account.png)
+
+Lab Instance: 
+
+![assets-instance](assets/instance.png)
+
+Dashboard: 
+
+![assets-dashboard](assets/dashboard.png)
+
+
+Neon Theme: 
+
+![assets-neon-dashboard](assets/neon-dashboard.png)
 
 
 
