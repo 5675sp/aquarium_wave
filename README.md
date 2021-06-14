@@ -6,7 +6,6 @@ A Wave app that replaces the current front-end of Aquarium:
 Aquarium is a webapp that manages EC2 lab instances in your AWS account. It will spin up and spin down EC2 instances in a managed fashion. This will avoid leaving instances running indefinitely and racking up huge  charges.
 
 
- 
 # Setup
 
 ### Step 1: Download the H2O Wave SDK for your platform.
@@ -84,9 +83,12 @@ Go to http://localhost:10101/aquarium to access Aquarium.
 
 Landing page: 
 
-![/assets/landing_page](/assets/landing_page)
+![assets-landing_page](assets/landing_page.png)
 
 
+Create account: 
+
+![assets-create-account](assets/create_account.png)
 
 
 
