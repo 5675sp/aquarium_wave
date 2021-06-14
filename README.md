@@ -1,3 +1,5 @@
+# NOTE: STILL UNDER REVIEW AND DEVELOPMENT
+
 # Aquarium
 
 A Wave app that replaces the current front-end of Aquarium: 
@@ -62,16 +64,17 @@ Finally, point your web browser to http://localhost:10101/. You should see an em
 
 Rename your `aquarium_wave-master` (download) to `aquarium`. 
 
-Move it to a convenient location, say $HOME/Aquarium/. First, create a folder name Aquarium in your home directory. Rigth after, in a new terminal: Create a virtual environment, install the Aquarium's dependencies.
+Move it to a convenient location, say $HOME/Aquarium/. First, create a folder name Aquarium in your home directory. Rigth after, in a new terminal: Create a virtual environment and install the Aquarium's dependencies.
 
 ```
-cd $HOME/wave
+cd $HOME/Aquarium
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+pip install requests
 ```
 
-Finally, run Aquarium inside the Aquarium folder (created as instructed above):
+Finally, run Aquarium inside the Aquarium folder:
 
 ```
 wave run Aquarium 
