@@ -96,7 +96,7 @@ async def serve(q: Q):
 
        
         session.start_session(q.args.email, q.args.password)
-        #session.start_session('sergio.perez@h2o.ai', 'FuE9zhYa20!')
+        
         valid = session.get_valid()
 
         if valid:
