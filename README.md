@@ -7,6 +7,30 @@ A Wave app that replaces the current front-end of Aquarium:
 > An open-source framework for managing the hands-on laboratory learning experience for students.
 Aquarium is a webapp that manages EC2 lab instances in your AWS account. It will spin up and spin down EC2 instances in a managed fashion. This will avoid leaving instances running indefinitely and racking up huge  charges.
 
+# Views 
+
+Landing Page: 
+
+![assets-landing_page](assets/login.png)
+
+
+Create Account: 
+
+![assets-create-account](assets/create_account.png)
+
+Lab Instance: 
+
+![assets-instance](assets/instance.png)
+
+Dashboard: 
+
+![assets-dashboard](assets/dashboard.png)
+
+
+Neon Theme: 
+
+![assets-neon-dashboard](assets/neon-dashboard.png)
+
 
 # Setup
 
@@ -81,30 +105,6 @@ wave run Aquarium
 ```
 
 Go to http://localhost:10101/aquarium to access Aquarium.
-
-# Views 
-
-Landing Page: 
-
-![assets-landing_page](assets/login.png)
-
-
-Create Account: 
-
-![assets-create-account](assets/create_account.png)
-
-Lab Instance: 
-
-![assets-instance](assets/instance.png)
-
-Dashboard: 
-
-![assets-dashboard](assets/dashboard.png)
-
-
-Neon Theme: 
-
-![assets-neon-dashboard](assets/neon-dashboard.png)
 
 
 
