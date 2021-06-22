@@ -67,8 +67,9 @@ async def manage_pre_warming(q: Q):
         )
 
         q.page['manage_pre_warming'].items = batch_list
-  
+        
     q.page['manage_pre_warming_settings'] = ui.meta_card(box='')
+
     await q.page.save()
 
 
@@ -89,7 +90,9 @@ def start_batch(labId: int, total: int):
         "labId": f'{labId}',
         "total": f'{total}'
     }
-    session_holder.post(url_api_create_prewarm_batch, data=data, verify=False)
+    JsonResponse = session_holder.post(url_api_create_prewarm_batch, data=data, verify=False)
+    JsonResponse = JsonResponse.json()
+    return JsonResponse["valid"]
 
 
 async def pop_manage_pre_warming_settings(q: Q):
@@ -134,41 +137,57 @@ async def batch_details(q: Q, id: int):
     global current_batch
     current_batch = id
 
-    jsonRes = jsonRes_global
+    global exit_batch_view
+    exit_batch_view = False
 
-    q.page['batch_details']  = ui.form_card(box='3 1 -1 -1', items=[
-        ui.text_xl(content=f'Pre-Warming Batch {id} ({jsonRes["title"]})'),
-        ui.button(name='batch_details_refresh_page', label='Refresh page', primary=True),
-        ui.text_m(content=batch_metrics_header()),
-        ui.inline(items = [
-            ui.toggle(name='enable_one', value = None, trigger=True),
-            ui.button(name='add_one_instance', label='Add 1 instance', primary = True, disabled=True),
-            ui.button(name='add_five_instances', label='Add 5 instances', primary=True, disabled=True),
-            ui.button(name='add_twenty_five_instances', label='Add 25 instances', primary=True, disabled=True),
-            ui.button(name='add_one_hundred_instances', label='Add 100 instances', primary=True, disabled=True)
-        ], inset = True),
-        ui.text_m(content=batch_metrics_body()),
-        ui.inline(
-            items = [
-                ui.toggle(name='enable_two', value = None, trigger=True),
-                ui.button(name='end_all_unclaimed_instances_in_batch', label='End all unclaimed instances in this batch(in-use instances are not affected)', primary=True, disabled=True)
-            ], inset = True
-        ),
-        ui.inline(
-            items = [
-                ui.toggle(name='enable_three', value = None, trigger=True),
-                ui.button(name='end_all_instances_in_this_batch', label='End all instances in this batch', primary=True, disabled=True)
-            ], inset = True
-        ),
-        ui.inline(
-            items = [
-                ui.toggle(name='enable_four', value = None,  trigger=True),
-                ui.button(name='deactivate_batch', label='Deactivate this batch (this does not end instances)', primary=True, disabled=True)
-            ], inset = True
-        )
-    ])
+    while True: 
 
-    await q.page.save()
+        if exit_batch_view: 
+            break;
+
+        jsonRes = jsonRes_global
+        if jsonRes["active"] == False:
+            print('BREAK')
+            break;
+
+        q.page['batch_details']  = ui.form_card(box='3 1 -1 -1', items=[
+            ui.text_xl(content=f'Pre-Warming Batch {id} ({jsonRes["title"]})'),
+            ui.button(name='batch_details_refresh_page', label='Refresh page', primary=True),
+            ui.text_m(content=batch_metrics_header()),
+            ui.inline(items = [
+                ui.toggle(name='enable_one', value = None, trigger=True, disabled = False),
+                ui.button(name='add_one_instance', label='Add 1 instance', primary = True, disabled=True),
+                ui.button(name='add_five_instances', label='Add 5 instances', primary=True, disabled=True),
+                ui.button(name='add_twenty_five_instances', label='Add 25 instances', primary=True, disabled=True),
+                ui.button(name='add_one_hundred_instances', label='Add 100 instances', primary=True, disabled=True)
+            ], inset = True),
+            ui.text_m(content=batch_metrics_body()),
+            ui.inline(
+                items = [
+                    ui.toggle(name='enable_two', value = None, trigger=True, disabled = False),
+                    ui.button(name='end_all_unclaimed_instances_in_batch', label='End all unclaimed instances in this batch(in-use instances are not affected)', primary=True, disabled=True)
+                ], inset = True
+            ),
+            ui.inline(
+                items = [
+                    ui.toggle(name='enable_three', value = None, trigger=True, disabled = False),
+                    ui.button(name='end_all_instances_in_this_batch', label='End all instances in this batch', primary=True, disabled=True)
+             ], inset = True
+            ),
+            ui.inline(
+                items = [
+                    ui.toggle(name='enable_four', value = None,  trigger=True, disabled = False),
+                    ui.button(name='deactivate_batch', label='Deactivate this batch (this does not end instances)', primary=True, disabled=True)
+                ], inset = True
+            )
+        ])
+
+        batch_details_api_call(id)
+        print('UPDATING')
+        await q.page.save()
+        await q.sleep(20)
+
+  
     #await q.sleep(20)
     #await update_batch_details(q)
     
@@ -212,11 +231,7 @@ def end_unclaimed_in_pre_warm_batch():
         "batchId": f'{current_batch}'
     }
     response = session_holder.post(url_end_unclaimed_in_pre_warm_batch, data=data, verify=False)
-    print('-----------------------')
-    print(response)
-    print('-----------------------')
-    print(response.status_code)
-    print('-----------------------')
+   
 
 def end_all_in_pre_warm_batch():
     session_holder = session.get_session()
@@ -225,25 +240,23 @@ def end_all_in_pre_warm_batch():
         "batchId": f'{current_batch}'
     }
     response = session_holder.post(url_end_all_in_pre_warm_batch, data=data, verify=False)
-    print('-----------------------')
-    print(response)
-    print('-----------------------')
-    print(response.status_code)
-    print('-----------------------')
+   
 
 
-def deactivate_pre_warm_batch():
+async def deactivate_pre_warm_batch(q: Q):
     session_holder = session.get_session()
     url_deactivate_pre_warm_batch = f'https://aquarium.h2o.ai/api/deactivatePrewarmBatch'
     data = {
         "batchId": f'{current_batch}'
     }
     response = session_holder.post(url_deactivate_pre_warm_batch, data=data, verify=False)
-    print('-----------------------')
-    print(response)
-    print('-----------------------')
-    print(response.status_code)
-    print('-----------------------')
+
+    q.page['batch_details'].items[3].inline.items[0].toggle.disabled = True
+    q.page['batch_details'].items[5].inline.items[0].toggle.disabled = True
+    q.page['batch_details'].items[6].inline.items[0].toggle.disabled = True
+    q.page['batch_details'].items[7].inline.items[0].toggle.disabled = True
+    await q.page.save()
+   
 
 def timestamp_to_human_readable_date(timestamp: int):
     zone = str(get_localzone())

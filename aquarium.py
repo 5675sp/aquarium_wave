@@ -42,10 +42,11 @@ async def setup_page(q: Q, user_name: str, user_role: str):
                 ui.nav_item(name='logout', label='Logout'),
                 #ui.nav_item(name='changePassword', label='Change Password'),
             ]),
-            ui.nav_group('Theme', items=[
-                ui.nav_item(name='neon', label='Neon')
-            ]),
-        ], 
+            #ui.nav_group('Theme', items=[
+            #    ui.nav_item(name='neon', label='Neon')
+            #]),
+        ],
+          
     )
 
     await q.page.save()
@@ -82,11 +83,12 @@ async def update_batch_metrics(q: Q):
 @app('/aquarium')
 async def serve(q: Q):
 
+    q.page['nav'].value = None
     
 
     #|-------------------------session.py-------------------------|
     if not q.client.initialized:
-        q.page['meta'] = ui.meta_card(box='')
+        #q.page['meta'] = ui.meta_card(box='')
         q.client.theme = 'default'
         q.client.initialized = True
 
@@ -101,7 +103,7 @@ async def serve(q: Q):
 
         if valid:
             q.page.drop()
-            q.page['meta'] = ui.meta_card(box='')
+            
             q.client.theme = 'default'
             nameRole = session.top_bar()
             await setup_page(q, nameRole['userName'], nameRole['userRole'])
@@ -124,6 +126,7 @@ async def serve(q: Q):
 
     if q.args.logout:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         logout_method()
         await session.login_options(q)
@@ -133,6 +136,8 @@ async def serve(q: Q):
         
     if q.args.managelabs:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
+        
         await delete_cards(q)
         manage_labs.manage_labs()
         await manage_labs.manage_lab_settings(q)
@@ -185,6 +190,7 @@ async def serve(q: Q):
 
     if q.args.browselabs: 
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         browse_labs.api_lab()
         await browse_labs.browse_labs(q)
@@ -202,6 +208,7 @@ async def serve(q: Q):
 
     if q.args.dashboard_message: #button to go to the browse labs page 
         await delete_cards(q)
+        q.page['nav'].value = 'browselabs'
         browse_labs.api_lab()
         await browse_labs.browse_labs(q)
 
@@ -211,6 +218,7 @@ async def serve(q: Q):
 
     if q.args.dashboard:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         dashboard.dashboard_metrics()
         await dashboard.dashboard(q)
@@ -237,6 +245,7 @@ async def serve(q: Q):
 
     if q.args.manage_active_lab_instances:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         manage_active_lab_instances.active_labs()
        
@@ -255,10 +264,72 @@ async def serve(q: Q):
 
     if q.args.extend: #if the extend button is click extend the lab instance 
         await delete_cards(q)
-        manage_active_lab_instances.extend_lab_instance_method(q.args.liId)
+        manage_active_lab_instances.extend_lab_instance(q.args.liId)
         manage_active_lab_instances.active_labs()
         await manage_active_lab_instances.active_labs_table(q)
         await manage_active_lab_instances.active_lab_metrics(q,manage_active_lab_instances.selected_lab_instance)
+
+    if q.args.extend_all_waiting_labs_by_30_minutes:
+        await delete_cards(q)
+        manage_active_lab_instances.extend_all_waiting()
+        manage_active_lab_instances.active_labs()
+        await manage_active_lab_instances.active_labs_table(q)
+        await manage_active_lab_instances.active_lab_metrics(q,0)
+
+    if q.args.extend_all_running_labs_by_30_minutes:
+        await delete_cards(q)
+        manage_active_lab_instances.extend_all_running()
+        manage_active_lab_instances.active_labs()
+        await manage_active_lab_instances.active_labs_table(q)
+        await manage_active_lab_instances.active_lab_metrics(q,0)
+
+    if q.args.end_all_labs_immediately:
+        await delete_cards(q)
+        manage_active_lab_instances.end_all_lab_instances()
+        manage_active_lab_instances.active_labs()
+        await manage_active_lab_instances.active_labs_table(q)
+        await manage_active_lab_instances.active_lab_metrics(q,0)
+
+    if q.args.enable_extend_all_waiting:
+        q.page['activelabs'].items[3].inline.items[1].button.disabled = False
+        q.page['activelabs'].items[3].inline.items[0].toggle.value = True
+
+    if q.args.enable_extend_all_waiting == False:
+        q.page['activelabs'].items[3].inline.items[1].button.disabled = True
+        q.page['activelabs'].items[3].inline.items[0].toggle.value = False
+
+    if q.args.enable_extend_all_running:
+        q.page['activelabs'].items[4].inline.items[1].button.disabled = False
+        q.page['activelabs'].items[4].inline.items[0].toggle.value = True
+
+    if q.args.enable_extend_all_running == False:
+        q.page['activelabs'].items[4].inline.items[1].button.disabled = True
+        q.page['activelabs'].items[4].inline.items[0].toggle.value = False
+
+    if q.args.enable_end_button:
+        q.page['activelabs'].items[5].inline.items[1].button.disabled = False
+        q.page['activelabs'].items[5].inline.items[0].toggle.value = True
+        q.page['activeLabButtons'].items[11].buttons.items[0].button.disabled = False
+
+    if q.args.enable_end_button == False:
+        q.page['activelabs'].items[5].inline.items[1].button.disabled = True
+        q.page['activelabs'].items[5].inline.items[0].toggle.value = False
+        q.page['activeLabButtons'].items[11].buttons.items[0].button.disabled = True
+        
+    await q.page.save()
+
+
+    if q.args.end:
+        
+        await delete_cards(q)
+        manage_active_lab_instances.end_lab_instance(q.args.liId)
+        print('END')
+        print(q.args.liId)
+        #q.page['activeLabButtons'].items[11].buttons.items[0].button.disabled = True
+        manage_active_lab_instances.active_labs()
+        await manage_active_lab_instances.active_labs_table(q)
+        await manage_active_lab_instances.active_lab_metrics(q,0)
+
 
 
     #|-------------------------manage_pre_warming.py-------------------------|
@@ -266,6 +337,7 @@ async def serve(q: Q):
     
     if q.args.manage_pre_warming: #manage pre-warming batches 
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         await manage_pre_warming.manage_pre_warming(q)
 
@@ -278,9 +350,15 @@ async def serve(q: Q):
         await manage_pre_warming.batch_details(q, q.args.active_batches[0])
 
     if q.args.create_batch: # button to create a batch 
-        manage_pre_warming.start_batch(q.args.dropdown,q.args.number_of_instances)
-        del q.page['manage_pre_warming_settings']
-        await manage_pre_warming.manage_pre_warming(q)
+
+        valid = manage_pre_warming.start_batch(q.args.dropdown,q.args.number_of_instances)
+    
+        if valid: 
+            del q.page['manage_pre_warming_settings']
+            await manage_pre_warming.manage_pre_warming(q)
+        else:
+            q.page['manage_pre_warming_settings'].dialog.items = [ui.message_bar(type='error', text='Error occurred, unable to create batch')]
+            await q.page.save()    
 
     if q.args.batch_details_refresh_page: #refresh batche page detail
         
@@ -356,7 +434,7 @@ async def serve(q: Q):
         await update_batch_metrics(q)
 
     if q.args.deactivate_batch:
-        manage_pre_warming.deactivate_pre_warm_batch()
+        await manage_pre_warming.deactivate_pre_warm_batch(q)
         manage_pre_warming.batch_details_api_call(manage_pre_warming.current_batch)
         q.page['batch_details'].items[2].text_m.content = manage_pre_warming.batch_metrics_header()
         q.page['batch_details'].items[4].text_m.content = manage_pre_warming.batch_metrics_body()
@@ -365,13 +443,12 @@ async def serve(q: Q):
 
 
 
-
-
     #|-------------------------manage_users.py-------------------------|
     
 
     if q.args.manage_users:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         await manage_users.users(q, True)
 
@@ -401,18 +478,21 @@ async def serve(q: Q):
     
     if q.args.recent_instances:
         browse_labs.exit = True
+        manage_pre_warming.exit_batch_view = True
         await delete_cards(q)
         await download_instances_csv.csv_table(q)
 
     if q.args.instances:
         await download_instances_csv.csv_table(q)
     
-    meta = q.page['meta']
-    if q.args.neon:
-        meta.theme = q.client.theme = 'neon' if q.client.theme == 'default' else 'default'
-        await q.page.save()
+    
+    #if q.args.neon:
+    #    q.page['neon_theme'] = ui.meta_card(box='')
+    #    q.page['neon_theme'].theme = q.client.theme = 'neon' if q.client.theme == 'default' else 'default'
+    #    await q.page.save()
 
 
+    
 
         
 
