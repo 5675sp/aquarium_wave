@@ -482,6 +482,9 @@ async def serve(q: Q):
         await delete_cards(q)
         await download_instances_csv.csv_table(q)
 
+    #if q.args.downloadInstancesCsv:
+    #    await download_instances_csv.download_csv_file(q)
+
     if q.args.instances:
         await download_instances_csv.csv_table(q)
     
